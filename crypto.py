@@ -106,29 +106,73 @@ def generate_private_key(n=8):
     return (W, Q, R)
 
 # Arguments: tuple (W, Q, R) - W a length-n tuple of integers, Q and R both integers
-# Returns: tuple B - a length-n tuple of integers
+# Returns: B - a length-n tuple of integers
 def create_public_key(private_key):
     b = []
-    for x in private_key[1]:
-        b.append(private_key[3] * x % private_key[2])
+    W, Q, R = private_key
+    for W_i in W:
+        b.append((R * W_i) % Q)
 
     B = tuple(b)
 
     return B
 
-# Arguments: string, tuple (W, Q, R)
+## Arguments: string, tuple B
 # Returns: list of integers
 def encrypt_mhkc(plaintext, public_key):
-    pass
+    listofCs = []
 
-# Arguments: list of integers, tuple B - a length-n tuple of integers
+    for letter in plaintext:
+        asciiValue = ord(letter)
+        binaryvalue = '{0:08b}'.format(asciiValue)
+        M = []
+
+        for num in binaryvalue:
+            M.append(num)
+
+        j = 0
+        C = 0
+        for M_i in M:
+            C = C + (int(M_i) * public_key[j])
+            j = j + 1
+
+        listofCs.append(C)
+
+    return listofCs
+
+# Arguments: list of integers, private key (W, Q, R) with W a tuple.
 # Returns: bytearray or str of plaintext
 def decrypt_mhkc(ciphertext, private_key):
-    pass
+    W, Q, R = private_key
+    for S in range(2, Q):
+        if ((S * R)%Q == 1):
+            break
+    C2 = []
+    for C in ciphertext:
+        C2.append((C * S)%Q)
 
+    i = len(W) - 1
+    indicesInOriginal = []
+    for Cval in C2:
+        while 1 == 1:
+            if(W[i] > Cval):
+                i = i - 1
+            else:
+                Cval = Cval - W[i]
+                indicesInOriginal.append(i)
+                i = i -1
+
+   indicesInOriginal
 def main():
-    print(generate_private_key())
-    print(create_public_key(generate_private_key()))
+    x = (generate_private_key())
+    y = (create_public_key(x))
+    print(y)
+
+    z = (encrypt_mhkc("ADAM", y))
+
+    print(decrypt_mhkc(z, x))
+
+
 
 if __name__ == "__main__":
     main()
