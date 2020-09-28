@@ -143,6 +143,7 @@ def encrypt_mhkc(plaintext, public_key):
 # Arguments: list of integers, private key (W, Q, R) with W a tuple.
 # Returns: bytearray or str of plaintext
 def decrypt_mhkc(ciphertext, private_key):
+    decryptchars = []
     W, Q, R = private_key
     for S in range(2, Q):
         if ((S * R)%Q == 1):
@@ -151,18 +152,31 @@ def decrypt_mhkc(ciphertext, private_key):
     for C in ciphertext:
         C2.append((C * S)%Q)
 
-    i = len(W) - 1
-    indicesInOriginal = []
+
+
+
+
     for Cval in C2:
-        while 1 == 1:
+        indicesInOriginal = []
+        i = len(W) - 1
+
+        while i > -1:
             if(W[i] > Cval):
                 i = i - 1
             else:
                 Cval = Cval - W[i]
-                indicesInOriginal.append(i)
+                indicesInOriginal.append(len(W) - i)
                 i = i -1
+            if Cval == 0:
+                break
+        asciival = 0
+        for x in indicesInOriginal:
+            asciival = asciival + (2 ** (x-1))
 
-   indicesInOriginal
+        decryptchars.append(chr(asciival))
+
+    return decryptchars
+
 def main():
     x = (generate_private_key())
     y = (create_public_key(x))
